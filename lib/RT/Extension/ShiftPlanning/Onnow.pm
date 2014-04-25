@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-package RT::Extension::2ndQuadrantSupport::ShiftPlanning::Onnow;
+package RT::Extension::ShiftPlanning::Onnow;
 
 use strict;
 use warnings;
@@ -10,7 +10,7 @@ use base 'RT::Record';
 
 =head1 NAME
 
-  RT::Extension::2ndQuadrantSupport::ShiftPlanning::Onnow  - a shift / clock entry from shiftplanning
+  RT::Extension::ShiftPlanning::Onnow  - a shift / clock entry from shiftplanning
 
 =head1 DESCRIPTION
 

@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-package RT::Extension::2ndQuadrantSupport::ShiftPlanning::Location;
+package RT::Extension::ShiftPlanning::Location;
 
 use strict;
 use warnings;
@@ -10,7 +10,7 @@ use base 'RT::Record';
 
 =head1 NAME
 
-  RT::Extension::2ndQuadrantSupport::ShiftPlanning::Location  - "location" in shiftplanning
+  RT::Extension::ShiftPlanning::Location  - "location" in shiftplanning
 
 =head1 DESCRIPTION
 

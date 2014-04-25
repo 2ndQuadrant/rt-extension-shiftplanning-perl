@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-package RT::Extension::2ndQuadrantSupport::ShiftPlanning::Schedule;
+package RT::Extension::ShiftPlanning::Schedule;
 
 use strict;
 use warnings;
@@ -10,7 +10,7 @@ use base 'RT::Record';
 
 =head1 NAME
 
-  RT::Extension::2ndQuadrantSupport::ShiftPlanning::Schedule - Schedule of shifts for a given "location" in shiftplanning
+  RT::Extension::ShiftPlanning::Schedule - Schedule of shifts for a given "location" in shiftplanning
 
 =head1 DESCRIPTION
 

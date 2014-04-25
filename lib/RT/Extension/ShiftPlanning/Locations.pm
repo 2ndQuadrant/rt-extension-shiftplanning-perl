@@ -4,15 +4,15 @@ use strict;
 use warnings;
 use 5.10.1;
 
-package RT::Extension::2ndQuadrantSupport::ShiftPlanning::Locations;
+package RT::Extension::ShiftPlanning::Locations;
 
 use base 'RT::SearchBuilder';
 
-use RT::Extension::2ndQuadrantSupport::ShiftPlanning::Location;
+use RT::Extension::ShiftPlanning::Location;
 
 =head1 NAME
 
-  RT::Extension::2ndQuadrantSupport::ShiftPlanning::Locations - Search class for ::Location
+  RT::Extension::ShiftPlanning::Locations - Search class for ::Location
 
 See perldoc DBIx::SearchBuilder
 
@@ -20,13 +20,13 @@ See perldoc DBIx::SearchBuilder
 
 sub _Init {
     my $self = shift;
-    $self->Table( RT::Extension::2ndQuadrantSupport::ShiftPlanning::Location->Table() );
+    $self->Table( RT::Extension::ShiftPlanning::Location->Table() );
     return $self->SUPER::_Init(@_);
 }
 
 sub NewItem {
     my $self = shift;
-    return(RT::Extension::2ndQuadrantSupport::ShiftPlanning::Location->new($self->CurrentUser));
+    return(RT::Extension::ShiftPlanning::Location->new($self->CurrentUser));
 }
 
 1;
