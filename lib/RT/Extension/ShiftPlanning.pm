@@ -175,6 +175,87 @@ sub ClockedInOrScheduled {
     return @users_on_now;
 }
 
+sub ClockedInOrScheduledByLocationAndSchedule {
+    my ($location, $shifts, @users) = (@_);
+    die("Must specify location ID or name") unless defined($location);
+    # For efficiency we should be doing a single search against an IN list.
+    # LocationId may be undef, in which case anyone who is clocked in or scheduled
+    # for any shift is notified.
+    my $sb = RT::Extension::ShiftPlanning::Onnows->new( $RT::SystemUser );
+    my $join_to_sched_alias = $sb->Join(
+        TYPE   => 'left',
+        TABLE1 => 'main',
+        FIELD1 => 'ScheduleId',
+        TABLE2 => RT::Extension::ShiftPlanning::Schedule->Table(),
+        FIELD2 => 'ScheduleId',
+    );
+    my $join_to_location_alias = $sb->Join(
+        TYPE   => 'left',
+        ALIAS1 => $join_to_sched_alias,
+        FIELD1 => 'LocationId',
+        TABLE2 => RT::Extension::ShiftPlanning::Location->Table(),
+        FIELD2 => 'LocationId',
+    );
+    $sb->Limit(
+        ALIAS => $join_to_location_alias,
+        FIELD => 'name',
+        OPERATOR => 'IS',
+        VALUE => 'NULL',
+        QUOTEVALUE => 0,
+        ENTRYAGGREGATOR => 'OR',
+        SUBCLAUSE => 'filter',
+    );
+	# OR on one of the specified shifts
+	if(defined $shifts and scalar @$shifts > 0) {
+		$sb->Limit(
+			FIELD => 'scheduleid',
+			OPERATOR => 'IN'
+			VALUE => $shifts,
+			ENTRYAGGREGATOR => 'OR',
+			SUBCLAUSE => 'filter',
+		);
+	}
+    if ($location =~ /^\d+$/) {
+        $sb->Limit(
+            ALIAS => $join_to_location_alias,
+            FIELD => 'LocationId',
+            VALUE => int($location),
+            QUOTEVALUE => 0,
+            ENTRYAGGREGATOR => 'OR',
+            SUBCLAUSE => 'filter',
+        );
+    } else {
+        $sb->Limit(
+            ALIAS => $join_to_location_alias,
+            FIELD => 'name',
+            VALUE => $location,
+            QUOTEVALUE => 1,
+            ENTRYAGGREGATOR => 'OR',
+            SUBCLAUSE => 'filter',
+        );
+    }
+    # Result gives us a bunch of OnNow records. They are not very useful by themselves. We need to collect their
+    # IDs and use them to filter a list of users by the ShiftPlanningUserId custom field. This could be integrated
+    # into the above query and probably should be, but RT custom fields are painful to work with so we'll just use
+    # a loop and deal with the icky repeated SQL.
+    #
+    my %sp_id_to_rt_user = ();
+    for my $user (@users) {
+        my $spid = $user->FirstCustomFieldValue('ShiftPlanningEmployeeId');
+        if (defined($spid)) {
+            $sp_id_to_rt_user{$spid} = $user;
+		}
+    }
+    my @users_on_now = ();
+    while (my $sp_onnow = $sb->Next) {
+        my $rtuser = $sp_id_to_rt_user{$sp_onnow->EmployeeId};
+        if (defined($rtuser)) {
+            push(@users_on_now, $sp_id_to_rt_user{$sp_onnow->EmployeeId})
+        }
+    }
+    return @users_on_now;
+}
+
 =head2 RefreshScheduleData
 
 Fetch mostly-static shift data from shiftplanning.com - the mapping
