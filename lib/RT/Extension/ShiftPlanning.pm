@@ -175,8 +175,24 @@ sub ClockedInOrScheduled {
     return @users_on_now;
 }
 
-sub ClockedInOrScheduledByLocationAndSchedule {
-    my ($location, $shifts, @users) = (@_);
+=head2 ClockedInOrScheduledByLocationOrSchedule
+
+  ClockedInOrScheduledByLocationOrSchedule($location, \@schedules, @users)
+
+Takes a list of User objects and filters them according to ShiftPlanning,
+returning those who are currently clocked in at the specified location, or
+clocked in at no particular location, or clocked in to the given schedule.
+Returns a list of User objects which will correspond to a subset of those
+passed in. Locations are identified by either id or name, and schedules
+by name.
+
+See above for usage notes.
+
+=cut
+
+
+sub ClockedInOrScheduledByLocationOrSchedule {
+    my ($location, $schedules, @users) = (@_);
     die("Must specify location ID or name") unless defined($location);
     # For efficiency we should be doing a single search against an IN list.
     # LocationId may be undef, in which case anyone who is clocked in or scheduled
@@ -205,12 +221,13 @@ sub ClockedInOrScheduledByLocationAndSchedule {
         ENTRYAGGREGATOR => 'OR',
         SUBCLAUSE => 'filter',
     );
-	# OR on one of the specified shifts
-	if(defined $shifts and scalar @$shifts > 0) {
+	# OR on one of the specified schedules
+	if(defined $schedules and scalar @$schedules > 0) {
 		$sb->Limit(
-			FIELD => 'scheduleid',
-			OPERATOR => 'IN'
-			VALUE => $shifts,
+			ALIAS => $join_to_sched_alias,
+			FIELD => 'name',
+			OPERATOR => 'IN',
+			VALUE => $schedules,
 			ENTRYAGGREGATOR => 'OR',
 			SUBCLAUSE => 'filter',
 		);
