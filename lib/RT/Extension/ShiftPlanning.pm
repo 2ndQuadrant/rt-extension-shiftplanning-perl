@@ -307,6 +307,7 @@ sub RefreshScheduleData {
         );
     }
     for my $shift (@{$shifts}) {
+		next if $shift->{visible} == 0;
         my $s = RT::Extension::ShiftPlanning::Schedule->new( $RT::Handle );
         $s->Create(
             ScheduleId => $shift->{id},
