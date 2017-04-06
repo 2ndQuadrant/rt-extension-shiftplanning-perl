@@ -383,7 +383,7 @@ sub _getAgent {
 
     my $agent = WebService::ShiftPlanning->new(
         key => $key,
-        endpoint => 'https://humanity.com/api/',
+        endpoint => 'https://www.humanity.com/api/',
     );
     $agent->doLogin( $username, $password );
     return $agent;
